@@ -96,6 +96,7 @@ app.get("/:shortUrl", async (req, res) => {
 
 		return res.redirect(rows[0].url);
 	} catch (error) {
+		console.log(error);
     return res.redirect(process.env.URL_PROD)
   }
 });
