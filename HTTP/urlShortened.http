@@ -1,0 +1,15 @@
+@hostname = http://localhost
+@port = 4000
+@host = {{hostname}}:{{port}}
+@contentType = application/json
+
+POST {{hostname}}:{{port}}/urlShorter HTTP/1.1
+content-type: {{contentType}}
+
+{
+    "url": "https://www.amazon.com"
+}
+
+###
+
+GET {{hostname}}:{{port}}/fbf05 HTTP/1.1
