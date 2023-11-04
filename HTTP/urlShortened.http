@@ -12,4 +12,4 @@ content-type: {{contentType}}
 
 ###
 
-GET {{hostname}}:{{port}}/6wacj HTTP/1.1
+GET https://url-shortener-express-dev-mjpt.1.us-1fl0.io/6wacj HTTP/1.1

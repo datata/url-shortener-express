@@ -25,6 +25,10 @@ const corOptions = {
 app.use(cors(corOptions))
 app.use(express.json());
 
+app.get('/', (req, res) => {
+	res.send('Healthcheck Ok')
+})
+
 app.post("/urlShorter", async (req, res) => {
 	try {
 		const url = req.body.url;
