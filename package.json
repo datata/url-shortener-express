@@ -6,13 +6,15 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --watch --env-file .env ./src/index.js"
+    "dev": "node --watch --env-file .env ./src/index.js",
+    "start": "node ./src/index.js"
   },
   "author": "datata",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "mysql2": "^3.6.3"
+    "mysql2": "^3.6.3",
+    "pg-pool": "^3.6.1"
   }
 }

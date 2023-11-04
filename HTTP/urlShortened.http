@@ -12,4 +12,4 @@ content-type: {{contentType}}
 
 ###
 
-GET {{hostname}}:{{port}}/fbf05 HTTP/1.1
+GET {{hostname}}:{{port}}/6wacj HTTP/1.1

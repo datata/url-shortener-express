@@ -1,14 +1,14 @@
 import express from "express";
-import { createPool } from "mysql2/promise";
 import cors from 'cors'
+import Pool  from 'pg-pool'
 
-// create the connection to database
-export const pool = createPool({
-	host: process.env.DB_HOST,
+const pool = new Pool({
 	user: process.env.DB_USER,
+	host: process.env.DB_HOST,
 	password: process.env.DB_PASSWORD,
-	port: process.env.DB_PORT,
 	database: process.env.DB_DATABASE,
+	port: process.env.DB_PORT,
+	ssl: true
 });
 
 const app = express();
@@ -28,8 +28,6 @@ app.use(express.json());
 app.post("/urlShorter", async (req, res) => {
 	try {
 		const url = req.body.url;
-		const host = req.headers.host;
-		console.log(host);
 
 		// Validacion url
 		const httpsUrlRegex = /^https:\/\/[^\s/$.?#].[^\s]*$/;
@@ -42,9 +40,10 @@ app.post("/urlShorter", async (req, res) => {
 		}
 
 		const urlShorted = Math.random().toString(36).substring(2, 7);
-		const sql = "INSERT INTO url_shortened (url, url_shorted) VALUES (?, ?)";
 
-		const [rows] = await pool.query(sql, [url, urlShorted]);
+		const sql = "INSERT INTO urlshortened (url, url_shorted) VALUES ($1, $2)";
+
+		const response = await pool.query(sql, [url, urlShorted]);
 
 		return res.status(201).json({
 			success: true,
@@ -58,6 +57,7 @@ app.post("/urlShorter", async (req, res) => {
 		return res.status(500).json({
 			success: false,
 			message: "Something went wrong, please try again",
+			error: error.message
 		});
 	}
 });
@@ -70,9 +70,9 @@ app.get("/:shortUrl", async (req, res) => {
 			return res.redirect(process.env.URL_PROD)
 		}
 
-		const sql = "SELECT * FROM `url_shortened` WHERE `url_shorted` = ?"
+		const sql = "SELECT * FROM urlshortened WHERE url_shorted = $1"
 
-		const [rows, fields] = await pool.query(
+		const {rows} = await pool.query(
 			sql,
 			[urlShorted]
 		);
@@ -84,7 +84,7 @@ app.get("/:shortUrl", async (req, res) => {
 		let usageCounter = rows[0].usage_counter
 		usageCounter++
 		
-		const sql2 = "UPDATE url_shortened SET usage_counter = ? WHERE url_shorted = ?";
+		const sql2 = "UPDATE urlshortened SET usage_counter = $1 WHERE url_shorted = $2";
 		await pool.query(
 			sql2,
 			[usageCounter, urlShorted]
@@ -92,7 +92,6 @@ app.get("/:shortUrl", async (req, res) => {
 
 		return res.redirect(rows[0].url);
 	} catch (error) {
-		console.log(error);
     return res.redirect(process.env.URL_PROD)
   }
 });
