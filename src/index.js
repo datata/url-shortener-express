@@ -1,6 +1,7 @@
 import express from "express";
 import cors from 'cors'
 import Pool  from 'pg-pool'
+import 'dotenv/config'
 
 const pool = new Pool({
 	user: process.env.DB_USER,
@@ -53,11 +54,13 @@ app.post("/urlShorter", async (req, res) => {
 			success: true,
 			message: "Valid url",
 			data: {
+				urlShorted,
 				url: url,
 				urlShorted: `${process.env.URL_PROD}/${urlShorted}`,
 			},
 		});
 	} catch (error) {
+		console.log(error.message);
 		return res.status(500).json({
 			success: false,
 			message: "Something went wrong, please try again",
@@ -70,8 +73,8 @@ app.get("/:shortUrl", async (req, res) => {
   try {
 		const urlShorted = req.params.shortUrl;
 
-		if(urlShorted.length > 5) {
-			return res.redirect(process.env.URL_PROD)
+		if(urlShorted.length > 5 || urlShorted.length) {
+			throw new Error('Url not found')
 		}
 
 		const sql = "SELECT * FROM urlshortened WHERE url_shorted = $1"
@@ -96,9 +99,13 @@ app.get("/:shortUrl", async (req, res) => {
 
 		return res.redirect(rows[0].url);
 	} catch (error) {
-		console.log(error);
+		console.log(error.message);
+		if(res.message === 'Url not found') {
+			res.status(404)
+		}
+
     return res.redirect(process.env.URL_PROD)
   }
 });
 
-app.listen(PORT, console.log(`Server running on port: ${PORT}`));
+export default app.listen(PORT, console.log(`Server running on port: ${PORT}`));
